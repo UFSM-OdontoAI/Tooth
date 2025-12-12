@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>UFSM — Sistema de Análise de Radiografias</title>
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+
+    <style>
+        body {
+            background: #e8f0fa;
+            font-family: 'Roboto', sans-serif;
+            color: #333;
+        }
+
+        .navbar {
+            background: #003366;
+            padding: 15px 30px;
+        }
+        .navbar-brand {
+            font-family: 'Merriweather';
+            color: white !important;
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+
+        .header-logos img {
+            max-height: 90px;
+            margin: 10px 25px;
+        }
+
+        h1, h2, h4 {
+            font-family: 'Merriweather';
+        }
+
+        .card {
+            border-radius: 15px;
+            padding: 28px;
+            box-shadow: 0 4px 15px rgba(0, 30, 80, 0.15);
+            background: white;
+        }
+
+        footer {
+            margin-top: 60px;
+            padding: 20px;
+            background: #003366;
+            color: white;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+
+<body>
+
+<nav class="navbar">
+    <span class="navbar-brand">UFSM — Tooth is not an Odontological Object Tagging Hub </span>
+</nav>
+
+<div class="container py-5">
+
+    <div class="text-center header-logos">
+        <!-- Esses arquivos devem estar em /static/ -->
+        <img src="/static/ufsm_logo.png" alt="UFSM Logo">
+        <img src="/static/ct_logo.png" alt="Centro de Tecnologia">
+        <img src="/static/ccs_logo.png" alt="Centro de Ciências da Saúde">
+    </div>
+
+    <h1 class="text-center mt-4 mb-4">Sistema de Diagnóstico Automático</h1>
+
+    <p class="text-center mb-5 px-4">
+        Proporcionar aos pacientes atendidos no curso de Odontologia da Universidade Federal de Santa Maria 
+        um diagnóstico mais rápido e preciso, melhorando a qualidade do serviço como um todo.  
+        O software desenvolvido tem também como objetivo ajudar na formação acadêmica dos estudantes 
+        do curso de Engenharia de Computação e de Odontologia, assim como servir como modelo 
+        para implementação em outras instituições.
+    </p>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card">
+
+                <h4 class="text-center mb-4">Envie sua radiografia panorâmica</h4>
+
+                <form action="{% url 'upload_save' %}" method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        {{ form.image.label_tag }}
+                        {{ form.image }}
+                    </div>
+
+                    <button class="btn btn-primary w-100 btn-lg" style="background:#0059a6;">
+                        Processar imagem
+                    </button>
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<footer>
+    Universidade Federal de Santa Maria — Centro de Tecnologia • Centro de Ciências da Saúde
+</footer>
+
+</body>
+</html>
