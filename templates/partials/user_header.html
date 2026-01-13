@@ -8,16 +8,19 @@
                 alt="Foto do usuário"
                 class="user-avatar"
             >
+        {% else %}
+            <div class="user-avatar-placeholder">
+                {{ request.user.first_name.0|default:request.user.username.0|upper }}
+            </div>
         {% endif %}
 
         <div class="user-text">
             <strong>
                 {{ request.user.get_full_name|default:request.user.username }}
-            </strong><br>
+            </strong>
             <small>{{ request.user.email }}</small>
         </div>
     </div>
-
 
     <form method="post" action="{% url 'account_logout' %}" class="logout-form">
     {% csrf_token %}

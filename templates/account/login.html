@@ -94,6 +94,34 @@
 			height: 20px;
 			object-fit: contain;
 		}
+
+		.btn-dev {
+			display: inline-block;
+			background: #ff9800;
+			color: white;
+			padding: 10px 20px;
+			border-radius: 6px;
+			text-decoration: none;
+			font-weight: 500;
+			font-size: 14px;
+			border: none;
+			transition: all 0.2s ease;
+			margin-top: 15px;
+		}
+
+		.btn-dev:hover {
+			background: #f57c00;
+		}
+
+		.dev-warning {
+			background: #fff3cd;
+			color: #856404;
+			padding: 10px;
+			border-radius: 4px;
+			margin-top: 15px;
+			font-size: 12px;
+			border: 1px solid #ffeaa7;
+		}
 	</style>
 </head>
 
@@ -115,6 +143,15 @@
 			<img src="https://developers.google.com/identity/images/g-logo.png" alt="Google" class="google-icon">
 			Entrar com Google
 		</a>
+
+		{% if debug %}
+		<div class="dev-warning">
+			⚠️ Modo de desenvolvimento ativo
+		</div>
+		<a class="btn-dev" href="{% url 'dev_login' %}">
+			🔧 Login de Desenvolvimento (Bypass OAuth)
+		</a>
+		{% endif %}
 	</div>
 </body>
 

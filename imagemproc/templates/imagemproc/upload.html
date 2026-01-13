@@ -1,136 +1,426 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <title>UFSM — Sistema de Análise de Radiografias</title>
 
     <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-    
+    <link
+        href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Roboto:wght@300;400;500;700&display=swap"
+        rel="stylesheet">
+
     <!-- Bootstrap -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
 
+    <!-- Common Styles -->
+    <link rel="stylesheet" href="/static/css/common.css">
+
     <style>
-        body {
-            background: #e8f0fa;
-            font-family: 'Roboto', sans-serif;
-            color: #333;
-        }
-
-        .navbar {
-            background: #003366;
-            padding: 15px 30px;
-        }
-        .navbar-brand {
-            font-family: 'Merriweather';
-            color: white !important;
-            font-size: 1.4rem;
-            font-weight: 700;
-        }
-
         .header-logos img {
             max-height: 90px;
             margin: 10px 25px;
         }
 
-        h1, h2, h4 {
-            font-family: 'Merriweather';
+        .file-upload-wrapper {
+            position: relative;
+            margin-bottom: 20px;
         }
 
-        .card {
-            border-radius: 15px;
-            padding: 28px;
-            box-shadow: 0 4px 15px rgba(0, 30, 80, 0.15);
-            background: white;
-        }
-
-        footer {
-            margin-top: 60px;
-            padding: 20px;
-            background: #003366;
-            color: white;
+        .file-upload-label {
+            display: block;
+            padding: 40px;
+            border: 2px dashed #0055A2;
+            border-radius: 12px;
+            background: #f8fbff;
+            cursor: pointer;
             text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .file-upload-label:hover {
+            border-color: #003d75;
+            background: #eef5ff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 85, 162, 0.1);
+        }
+
+        .file-upload-label svg {
+            margin-bottom: 12px;
+        }
+
+        .file-upload-text {
+            color: #0055A2;
+            font-weight: 500;
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+
+        .file-upload-hint {
+            color: #666;
+            font-size: 13px;
+        }
+
+        input[type="file"] {
+            position: absolute;
+            width: 0.1px;
+            height: 0.1px;
+            opacity: 0;
+            overflow: hidden;
+            z-index: -1;
+        }
+
+        .file-name-display {
+            margin-top: 12px;
+            padding: 12px;
+            background: #e8f4f8;
+            border-radius: 8px;
+            color: #003d75;
+            font-size: 14px;
+            display: none;
+        }
+
+        .file-name-display.show {
+            display: block;
+        }
+
+        .file-upload-label.has-file {
+            padding: 20px;
+            border-color: #28a745;
+            background: #f0fdf4;
+        }
+
+        .file-upload-label.has-file .upload-icon-wrapper {
+            display: none;
+        }
+
+        .image-preview {
+            display: none;
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .image-preview.show {
+            display: block;
+        }
+
+        .change-file-text {
+            display: none;
+            color: #28a745;
+            font-weight: 500;
+            font-size: 14px;
+            margin-top: 8px;
+        }
+
+        .change-file-text.show {
+            display: block;
+        }
+
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 51, 102, 0.95);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .loading-overlay.show {
+            display: flex;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loading-text {
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+
+        .loading-subtext {
+            color: rgba(255, 255, 255, 0.8);
             font-size: 0.9rem;
         }
-        .logout-btn {
-                background: #ffffff;
-                color: #0055A2;
-                border: none;
-                padding: 6px 14px;
-                border-radius: 4px;
-                font-weight: bold;
-                cursor: pointer;
+
+        .error-message {
+            background: #fee;
+            border: 1px solid #fcc;
+            border-radius: 8px;
+            padding: 12px 16px;
+            color: #c33;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
         }
 
-        .logout-btn:hover {
-                background: #e6e6e6;
+        .error-list {
+            margin: 0;
+            padding: 0;
+            list-style: none;
         }
-        .user-text strong,
-        .user-text small {
-                color: #ffffff;
+
+        .error-list li {
+            margin-bottom: 8px;
         }
-	.user-avatar {
-		width: 40px;
-		height: 40px;
-		border-radius: 50%;
-		object-fit: cover;
-	}	
+
+        .file-error {
+            display: none;
+            background: #fee;
+            border: 1px solid #fcc;
+            border-radius: 8px;
+            padding: 12px 16px;
+            color: #c33;
+            margin-top: 12px;
+            font-size: 0.9rem;
+        }
+
+        .file-error.show {
+            display: block;
+        }
     </style>
 </head>
 
 <body>
 
-<nav class="navbar">
-    <span class="navbar-brand">UFSM — Tooth is not an Odontological Object Tagging Hub </span>
-    {% include "partials/user_header.html" %}
-</nav>
-
-<div class="container py-5">
-
-    <div class="text-center header-logos">
-        <!-- Esses arquivos devem estar em /static/ -->
-        <img src="/static/ufsm_logo.png" alt="UFSM Logo">
-        <img src="/static/ct_logo.png" alt="Centro de Tecnologia">
-        <img src="/static/ccs_logo.png" alt="Centro de Ciências da Saúde">
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Processando imagem...</div>
+        <div class="loading-subtext">Aguarde enquanto a radiografia é analisada</div>
     </div>
 
-    <h1 class="text-center mt-4 mb-4">Sistema de Segmentação automática de imagens</h1>
+    <nav class="navbar">
+        <a href="{% url 'imagemproc:home' %}" class="navbar-brand">
+            UFSM — Tooth is not an Odontological Object Tagging Hub
+        </a>
+        {% include "partials/user_header.html" %}
+    </nav>
 
-    <p class="text-center mb-5 px-4">
-        Proporcionar aos pacientes atendidos no curso de Odontologia da Universidade Federal de Santa Maria 
-        um diagnóstico mais rápido e preciso, melhorando a qualidade do serviço como um todo.  
-        O software desenvolvido tem também como objetivo ajudar na formação acadêmica dos estudantes 
-        do curso de Engenharia de Computação e de Odontologia, assim como servir como modelo 
-        para implementação em outras instituições.
-    </p>
+    <div class="container py-5">
 
-    <div class="row justify-content-center">
-        <div class="col-lg-6">
-            <div class="card">
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
 
-                <h4 class="text-center mb-4">Envie sua radiografia panorâmica</h4>
+                <div class="card">
+                    <h4 class="text-center mb-4">Envie sua radiografia panorâmica</h4>
 
-                <form action="{% url 'imagemproc:upload_save' %}" method="POST" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    <div class="mb-3">
-                        {{ form.image.label_tag }}
-                        {{ form.image }}
+                    {% if form.errors %}
+                    <div class="error-message">
+                        <strong>⚠️ Erro no envio:</strong>
+                        <ul class="error-list">
+                            {% for field in form %}
+                            {% for error in field.errors %}
+                            <li>{{ error }}</li>
+                            {% endfor %}
+                            {% endfor %}
+                            {% for error in form.non_field_errors %}
+                            <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
                     </div>
+                    {% endif %}
 
-                    <button class="btn btn-primary w-100 btn-lg" style="background:#0059a6;">
-                        Processar imagem
-                    </button>
-                </form>
+                    <form action="{% url 'imagemproc:upload_save' %}" method="POST" enctype="multipart/form-data"
+                        id="uploadForm">
+                        {% csrf_token %}
+                        <div class="file-upload-wrapper">
+                            <label for="id_image" class="file-upload-label" id="uploadLabel">
+                                <div class="upload-icon-wrapper">
+                                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#0055A2"
+                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                        <polyline points="17 8 12 3 7 8"></polyline>
+                                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                                    </svg>
+                                    <div class="file-upload-text">Clique para selecionar a imagem</div>
+                                    <div class="file-upload-hint">ou arraste e solte aqui</div>
+                                </div>
+                                <img id="imagePreview" class="image-preview" alt="Prévia da imagem">
+                                <div class="file-name-display" id="fileNameDisplay"></div>
+                                <div class="change-file-text" id="changeFileText">✔️ Imagem carregada • Clique para
+                                    alterar</div>
+                            </label>
+                            {{ form.image }}
+                            <div class="file-error" id="fileError"></div>
+                        </div>
 
+                        <button class="btn btn-primary btn-lg btn-primary-custom w-100">
+                            Processar imagem
+                        </button>
+                    </form>
+
+                    <script>
+                        const fileInput = document.getElementById('id_image');
+                        const fileNameDisplay = document.getElementById('fileNameDisplay');
+                        const uploadLabel = document.getElementById('uploadLabel');
+                        const imagePreview = document.getElementById('imagePreview');
+                        const changeFileText = document.getElementById('changeFileText');
+                        const uploadForm = document.getElementById('uploadForm');
+                        const loadingOverlay = document.getElementById('loadingOverlay');
+                        const fileError = document.getElementById('fileError');
+
+                        const validExtensions = {{ valid_extensions| safe }};
+                        const maxFileSize = {{ max_file_size_mb }} * 1024 * 1024;
+
+                        function showError(message) {
+                            fileError.textContent = '⚠️ ' + message;
+                            fileError.classList.add('show');
+                            uploadLabel.style.borderColor = '#c33';
+                            uploadLabel.style.background = '#fee';
+                        }
+
+                        function clearError() {
+                            fileError.classList.remove('show');
+                            fileError.textContent = '';
+                        }
+
+                        function validateFile(file) {
+                            clearError();
+
+                            if (!file) return false;
+
+                            // Validar extensão
+                            const fileName = file.name.toLowerCase();
+                            const hasValidExtension = validExtensions.some(ext => fileName.endsWith(ext));
+
+                            if (!hasValidExtension) {
+                                showError('Formato de arquivo inválido. Formatos aceitos: ' + validExtensions.join(', '));
+                                fileInput.value = '';
+                                return false;
+                            }
+
+                            // Validar tamanho
+                            if (file.size > maxFileSize) {
+                                showError('O arquivo é muito grande. Tamanho máximo: 10MB');
+                                fileInput.value = '';
+                                return false;
+                            }
+
+                            // Validar tipo MIME
+                            if (!file.type.startsWith('image/')) {
+                                showError('O arquivo selecionado não é uma imagem válida');
+                                fileInput.value = '';
+                                return false;
+                            }
+
+                            return true;
+                        }
+
+                        // Mostrar loading ao submeter form
+                        uploadForm.addEventListener('submit', function (e) {
+                            if (fileInput.files && fileInput.files[0]) {
+                                if (!validateFile(fileInput.files[0])) {
+                                    e.preventDefault();
+                                    return false;
+                                }
+                                loadingOverlay.classList.add('show');
+                            }
+                        });
+
+                        function handleFileSelect(file) {
+                            if (!validateFile(file)) {
+                                imagePreview.classList.remove('show');
+                                fileNameDisplay.classList.remove('show');
+                                changeFileText.classList.remove('show');
+                                uploadLabel.classList.remove('has-file');
+                                return;
+                            }
+
+                            const reader = new FileReader();
+                            reader.onload = function (e) {
+                                imagePreview.src = e.target.result;
+                                imagePreview.classList.add('show');
+                                fileNameDisplay.textContent = '📷 ' + file.name;
+                                fileNameDisplay.classList.add('show');
+                                changeFileText.classList.add('show');
+                                uploadLabel.classList.add('has-file');
+
+                                // Restaurar estilo de sucesso
+                                uploadLabel.style.borderColor = '#28a745';
+                                uploadLabel.style.background = '#f0fdf4';
+                            };
+                            reader.readAsDataURL(file);
+                        }
+
+                        fileInput.addEventListener('change', function (e) {
+                            if (this.files && this.files[0]) {
+                                handleFileSelect(this.files[0]);
+                            }
+                        });
+
+                        // Função auxiliar para resetar estilos do upload
+                        function resetUploadStyle() {
+                            const hasFile = uploadLabel.classList.contains('has-file');
+                            uploadLabel.style.borderColor = hasFile ? '#28a745' : '#0055A2';
+                            uploadLabel.style.background = hasFile ? '#f0fdf4' : '#f8fbff';
+                        }
+
+                        // Drag and drop
+                        uploadLabel.addEventListener('dragover', function (e) {
+                            e.preventDefault();
+                            if (!this.classList.contains('has-file')) {
+                                this.style.borderColor = '#003d75';
+                                this.style.background = '#eef5ff';
+                            }
+                        });
+
+                        uploadLabel.addEventListener('dragleave', function (e) {
+                            e.preventDefault();
+                            if (!this.classList.contains('has-file')) {
+                                resetUploadStyle();
+                            }
+                        });
+
+                        uploadLabel.addEventListener('drop', function (e) {
+                            e.preventDefault();
+                            resetUploadStyle();
+
+                            if (e.dataTransfer.files.length) {
+                                fileInput.files = e.dataTransfer.files;
+                                handleFileSelect(e.dataTransfer.files[0]);
+                            }
+                        });
+                    </script>
+
+                </div>
             </div>
         </div>
+
     </div>
 
-</div>
-
-<footer>
-    Universidade Federal de Santa Maria — Centro de Tecnologia • Centro de Ciências da Saúde
-</footer>
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logos">
+                <img src="/static/UFSM_principal_cor.png" alt="UFSM" onerror="this.src='/static/ufsm_logo.png'">
+                <img src="/static/ct_logo.png" alt="Centro de Tecnologia" class="logo-middle">
+                <img src="/static/ccs_logo.png" alt="Centro de Ciências da Saúde">
+            </div>
+            <div class="footer-text">
+                Universidade Federal de Santa Maria — Centro de Tecnologia • Centro de Ciências da Saúde
+            </div>
+        </div>
+    </footer>
 
 </body>
+
 </html>
