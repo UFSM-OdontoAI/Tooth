@@ -5,27 +5,327 @@
     <meta charset="UTF-8">
     <title>UFSM — Resultado da análise</title>
 
-    <!-- Fonts -->
     <link
         href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Roboto:wght@300;400;500;700&display=swap"
         rel="stylesheet">
 
-    <!-- Bootstrap -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
 
     <!-- Common Styles -->
     <link rel="stylesheet" href="/static/css/common.css">
 
     <style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e8eef5 100%);
+            margin: 0;
+        }
+
+        .container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 30px !important;
+            padding-bottom: 20px !important;
+        }
+
+        .result-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            gap: 20px;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+            gap: 20px;
+        }
+
+        .page-title-section {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 300;
+            color: #003366;
+            margin: 0;
+            letter-spacing: 0.5px;
+        }
+
+        .image-counter {
+            color: #666;
+            font-size: 0.85rem;
+            font-weight: 400;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            gap: 6px;
+            overflow: hidden;
+        }
+
+        .image-viewer {
+            position: relative;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+        }
+
         .result-img {
             max-width: 100%;
+            max-height: 100%;
+            display: block;
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+            object-fit: contain;
+            transform: scale(1);
+            transform-origin: center center;
+            transition: transform 120ms ease;
+            will-change: transform;
+            user-select: none;
+            touch-action: none;
+            -webkit-user-drag: none;
+            cursor: zoom-in;
+        }
+
+        .result-img.no-transition {
+            transition: none !important;
+        }
+
+        .nav-button {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            color: #003366;
+            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            z-index: 10;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .nav-button:hover:not(:disabled) {
+            background: #ffffff;
+            color: #0055A2;
+            box-shadow: 0 6px 20px rgba(0, 85, 162, 0.25);
+            transform: translateY(-50%) scale(1.05);
+        }
+
+        .nav-button:disabled {
+            background: rgba(255, 255, 255, 0.4);
+            color: #ccc;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .nav-button.prev {
+            left: 15px;
+        }
+
+        .nav-button.next {
+            right: 15px;
+        }
+
+        .image-info {
+            position: absolute;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(8px);
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 0.75rem;
+            padding: 6px 14px;
+            border-radius: 6px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-weight: 300;
+            letter-spacing: 0.3px;
+            max-width: 90%;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            z-index: 5;
+        }
+
+        .zoom-controls {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            display: flex;
+            gap: 8px;
+            z-index: 11;
+        }
+
+        .zoom-button {
+            background: rgba(255, 255, 255, 0.95);
+            color: #003366;
+            border: none;
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+        }
+
+        .zoom-button:hover {
+            background: #ffffff;
+            color: #0055A2;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(0, 85, 162, 0.2);
+        }
+
+        .thumbnails-section {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(10px);
             border-radius: 12px;
-            border: 1px solid #999;
+            padding: 10px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+        }
+
+        .thumbnails-container {
+            display: flex;
+            flex-wrap: nowrap;
+            gap: 8px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding: 5px;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior-x: contain;
+        }
+
+        .thumbnails-container::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .thumbnails-container::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 3px;
+        }
+
+        .thumbnails-container::-webkit-scrollbar-thumb {
+            background: rgba(0, 85, 162, 0.3);
+            border-radius: 3px;
+        }
+
+        .thumbnails-container::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 85, 162, 0.5);
+        }
+
+        .thumbnail {
+            flex-shrink: 0;
+            width: 55px;
+            height: 55px;
+            aspect-ratio: 1;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: transform 120ms ease-out, border-color 0s;
+            will-change: transform;
+            transform: translateZ(0);
+        }
+
+        .thumbnail:hover:not(.active) {
+            border-color: #0055A2;
+            transform: translateZ(0) scale(1.06);
+        }
+
+        .thumbnail.active {
+            border-color: #003d75 !important;
+            outline: 2px solid rgba(0, 61, 117, 0.25);
+            outline-offset: 2px;
+            transform: translateZ(0) scale(1.03) !important;
+        }
+
+        .thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .btn-primary-custom {
+            padding: 10px 18px !important;
+            font-size: 0.85rem !important;
+            font-weight: 500 !important;
+            border-radius: 8px !important;
+            border: none !important;
+            transition: all 0.3s ease !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
         }
 
         .btn-primary-custom svg {
-            width: 20px;
-            height: 20px;
+            width: 16px;
+            height: 16px;
+        }
+
+        .btn-action-secondary {
+            background: rgba(255, 255, 255, 0.95) !important;
+            color: #0055A2 !important;
+            border: 2px solid #0055A2 !important;
+        }
+
+        .btn-action-secondary:hover {
+            background: #ffffff !important;
+            color: #003d75 !important;
+            border-color: #003d75 !important;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 85, 162, 0.2) !important;
+        }
+
+        .btn-primary-custom:not(.btn-action-secondary) {
+            background: linear-gradient(135deg, #0055A2 0%, #003d75 100%) !important;
+            color: white !important;
+        }
+
+        .btn-primary-custom:not(.btn-action-secondary):hover {
+            box-shadow: 0 6px 16px rgba(0, 85, 162, 0.3) !important;
+            transform: translateY(-2px);
         }
     </style>
 </head>
@@ -39,36 +339,81 @@
         {% include "partials/user_header.html" %}
     </nav>
 
-    <div class="container py-5">
+    <div class="container">
+        <div class="result-container">
 
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <div class="card">
-
-                    <h2 class="text-center mb-4">Imagem Processada</h2>
-
-                    <img src="{{ obj.result.url }}" class="result-img mb-4">
-
-                    <div class="d-flex gap-3">
-                        <a href="{% url 'imagemproc:upload_save' %}" class="btn-primary-custom flex-fill">
-                            Processar outra imagem
-                        </a>
-
-                        <a href="{{ obj.result.url }}" download="resultado_analise_tooth.png"
-                            class="btn-primary-custom flex-fill">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                            </svg>
-                            Baixar Imagem
-                        </a>
+            <div class="page-header">
+                <div class="page-title-section">
+                    <h1 class="page-title">Resultados da Análise</h1>
+                    <div class="image-counter" id="imageCounter">
+                        1 / {{ uploads|length }}
                     </div>
+                </div>
 
+                <div class="header-actions">
+                    <a href="{% url 'imagemproc:upload_save' %}" class="btn-primary-custom btn-action-secondary">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M12 5v14M5 12h14" />
+                        </svg>
+                        Nova Análise
+                    </a>
+
+                    <a href="{% url 'imagemproc:download_batch' batch_id %}" class="btn-primary-custom">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        </svg>
+                        Baixar ZIP
+                    </a>
                 </div>
             </div>
-        </div>
 
+            <div class="main-content">
+
+                <div class="thumbnails-section">
+                    <div class="thumbnails-container" id="thumbnailsContainer">
+                        {% for upload in uploads %}
+                        <div class="thumbnail {% if forloop.first %}active{% endif %}"
+                            onclick="showImage({{ forloop.counter0 }})">
+                            <img src="{{ upload.result.url }}" alt="Miniatura {{ forloop.counter }}">
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="image-viewer" id="imageViewer">
+                    <div class="image-info" id="imageInfo">
+                        {{ uploads.0.original.name }}
+                    </div>
+
+                    <div class="zoom-controls">
+                        <button class="zoom-button" id="zoomOutBtn" type="button" aria-label="Reduzir zoom">−</button>
+                        <button class="zoom-button" id="zoomResetBtn" type="button" aria-label="Resetar zoom">⤾</button>
+                        <button class="zoom-button" id="zoomInBtn" type="button" aria-label="Aumentar zoom">+</button>
+                    </div>
+
+                    <button class="nav-button prev" id="prevBtn" onclick="prevImage()">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5">
+                            <path d="M15 18l-6-6 6-6" />
+                        </svg>
+                    </button>
+
+                    <img id="resultImage" class="result-img" src="{{ uploads.0.result.url }}" alt="Imagem Processada"
+                        draggable="false">
+
+                    <button class="nav-button next" id="nextBtn" onclick="nextImage()">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5">
+                            <path d="M9 18l6-6-6-6" />
+                        </svg>
+                    </button>
+                </div>
+
+            </div>
+        </div>
     </div>
 
     <footer>
@@ -83,6 +428,375 @@
             </div>
         </div>
     </footer>
+
+    <script>
+        const resultImageEl = document.getElementById('resultImage');
+        const imageViewerEl = document.getElementById('imageViewer');
+        const imageInfoEl = document.getElementById('imageInfo');
+        const imageCounterEl = document.getElementById('imageCounter');
+        const prevBtnEl = document.getElementById('prevBtn');
+        const nextBtnEl = document.getElementById('nextBtn');
+        const zoomInBtn = document.getElementById('zoomInBtn');
+        const zoomOutBtn = document.getElementById('zoomOutBtn');
+        const zoomResetBtn = document.getElementById('zoomResetBtn');
+
+        const images = [
+            {% for upload in uploads %}
+        {
+            url: "{{ upload.result.url }}",
+                originalName: "{{ upload.original.name }}"
+        } {% if not forloop.last %}, {% endif %}
+        {% endfor %}
+        ];
+
+        let currentIndex = 0;
+        const totalImages = images.length;
+
+        const zoomMin = 1;
+        const zoomMax = 3;
+        const zoomStep = 0.2;
+        const clickZoom = 2.4;
+        let zoomLevel = 1;
+        let panX = 0;
+        let panY = 0;
+        let isPanning = false;
+        let dragStartX = 0;
+        let dragStartY = 0;
+        let lastPanX = 0;
+        let lastPanY = 0;
+        let didDrag = false;
+        let baseWidth = 0;
+        let baseHeight = 0;
+        let zoomOriginX = 0;
+        let zoomOriginY = 0;
+        let containerContentWidth = 0;
+        let containerContentHeight = 0;
+        let wheelTransitionTimeout = null;
+
+        function clampNumber(value, min, max) {
+            return Math.min(max, Math.max(min, value));
+        }
+
+        function disableTransitionTemporarily() {
+            resultImageEl.classList.add('no-transition');
+            if (wheelTransitionTimeout) {
+                clearTimeout(wheelTransitionTimeout);
+            }
+            wheelTransitionTimeout = setTimeout(() => {
+                // Não reabilita no meio de um drag
+                if (!isPanning) {
+                    resultImageEl.classList.remove('no-transition');
+                }
+            }, 140);
+        }
+
+        function updateBaseSize() {
+            if (!imageViewerEl || !resultImageEl) return;
+            const prevBaseWidth = baseWidth;
+            const prevBaseHeight = baseHeight;
+
+            const { contentWidth, contentHeight } = getViewerContentMetrics();
+            containerContentWidth = contentWidth;
+            containerContentHeight = contentHeight;
+
+            // Use o tamanho real renderizado (layout), sem influência do transform.
+            // Isso evita limites errados quando a imagem tem aspect ratio que deixa
+            // "sobras" no container (ex.: panorâmica muito larga).
+            baseWidth = resultImageEl.offsetWidth;
+            baseHeight = resultImageEl.offsetHeight;
+            if (!baseWidth || !baseHeight) {
+                const rect = resultImageEl.getBoundingClientRect();
+                baseWidth = rect.width;
+                baseHeight = rect.height;
+            }
+
+            // Mantém o ponto de zoom proporcionalmente ao novo tamanho (resize/troca de imagem)
+            if (zoomLevel <= 1 || !prevBaseWidth || !prevBaseHeight) {
+                zoomOriginX = baseWidth / 2;
+                zoomOriginY = baseHeight / 2;
+            } else {
+                zoomOriginX = (zoomOriginX / prevBaseWidth) * baseWidth;
+                zoomOriginY = (zoomOriginY / prevBaseHeight) * baseHeight;
+            }
+        }
+
+        function clampPan() {
+            if (!imageViewerEl) return;
+
+            const scaledWidth = baseWidth * zoomLevel;
+            const scaledHeight = baseHeight * zoomLevel;
+
+            // Pan em pixels de tela.
+            const maxPanX = Math.max(0, (scaledWidth - containerContentWidth) / 2);
+            const maxPanY = Math.max(0, (scaledHeight - containerContentHeight) / 2);
+
+            panX = clampNumber(panX, -maxPanX, maxPanX);
+            panY = clampNumber(panY, -maxPanY, maxPanY);
+        }
+
+        function applyZoom() {
+            clampPan();
+            resultImageEl.style.transformOrigin = `${zoomOriginX}px ${zoomOriginY}px`;
+            // Ordem importa: translate(...) scale(...) => escala primeiro, translada depois (pan não escala)
+            resultImageEl.style.transform = `translate(${panX}px, ${panY}px) scale(${zoomLevel})`;
+            if (zoomLevel > 1) {
+                resultImageEl.style.cursor = isPanning ? 'grabbing' : 'grab';
+            } else {
+                resultImageEl.style.cursor = 'zoom-in';
+            }
+        }
+
+        function setZoom(value) {
+            zoomLevel = clampNumber(value, zoomMin, zoomMax);
+            if (zoomLevel === 1) {
+                panX = 0;
+                panY = 0;
+                zoomOriginX = baseWidth / 2;
+                zoomOriginY = baseHeight / 2;
+            }
+            applyZoom();
+        }
+
+        function getViewerContentMetrics() {
+            const viewerRect = imageViewerEl.getBoundingClientRect();
+            const styles = window.getComputedStyle(imageViewerEl);
+            const paddingLeft = parseFloat(styles.paddingLeft) || 0;
+            const paddingTop = parseFloat(styles.paddingTop) || 0;
+            const paddingRight = parseFloat(styles.paddingRight) || 0;
+            const paddingBottom = parseFloat(styles.paddingBottom) || 0;
+
+            const contentLeft = viewerRect.left + paddingLeft;
+            const contentTop = viewerRect.top + paddingTop;
+            const contentWidth = imageViewerEl.clientWidth - (paddingLeft + paddingRight);
+            const contentHeight = imageViewerEl.clientHeight - (paddingTop + paddingBottom);
+            return { contentLeft, contentTop, contentWidth, contentHeight };
+        }
+
+        function zoomAtPointer(e, targetZoom, opts = {}) {
+            const { disableTransition = false } = opts;
+            if (disableTransition) {
+                disableTransitionTemporarily();
+            }
+            updateBaseSize();
+
+            const { contentLeft, contentTop, contentWidth, contentHeight } = getViewerContentMetrics();
+            containerContentWidth = contentWidth;
+            containerContentHeight = contentHeight;
+
+            const mx = e.clientX - contentLeft;
+            const my = e.clientY - contentTop;
+
+            const baseLeft = (containerContentWidth - baseWidth) / 2;
+            const baseTop = (containerContentHeight - baseHeight) / 2;
+
+            // Inversão correta do transform com origin:
+            // S = base + pan + zoom*p + (1-zoom)*origin
+            // => p = (S - base - pan - (1-zoom)*origin) / zoom
+            const currentZoom = zoomLevel;
+            const originShiftX = (1 - currentZoom) * zoomOriginX;
+            const originShiftY = (1 - currentZoom) * zoomOriginY;
+
+            const imgX = (mx - baseLeft - panX - originShiftX) / currentZoom;
+            const imgY = (my - baseTop - panY - originShiftY) / currentZoom;
+
+            zoomOriginX = clampNumber(imgX, 0, baseWidth);
+            zoomOriginY = clampNumber(imgY, 0, baseHeight);
+
+            zoomLevel = clampNumber(targetZoom, zoomMin, zoomMax);
+
+            // Ajusta o pan para manter o ponto sob o mouse “travado” durante o zoom
+            // Quando origin == ponto sob o mouse, o ponto fica em: base + pan + origin
+            // então pan = mouse - base - origin
+            panX = mx - baseLeft - zoomOriginX;
+            panY = my - baseTop - zoomOriginY;
+
+            if (zoomLevel === 1) {
+                panX = 0;
+                panY = 0;
+                zoomOriginX = baseWidth / 2;
+                zoomOriginY = baseHeight / 2;
+            }
+
+            applyZoom();
+        }
+
+        function startPan(clientX, clientY) {
+            if (zoomLevel <= 1) return;
+            isPanning = true;
+            didDrag = false;
+            dragStartX = clientX;
+            dragStartY = clientY;
+            lastPanX = panX;
+            lastPanY = panY;
+            resultImageEl.classList.add('no-transition');
+            applyZoom();
+        }
+
+        function movePan(clientX, clientY) {
+            if (!isPanning) return;
+            const deltaX = clientX - dragStartX;
+            const deltaY = clientY - dragStartY;
+            if (Math.abs(deltaX) > 2 || Math.abs(deltaY) > 2) {
+                didDrag = true;
+            }
+            panX = lastPanX + deltaX;
+            panY = lastPanY + deltaY;
+            applyZoom();
+        }
+
+        function endPan() {
+            if (!isPanning) return;
+            isPanning = false;
+            resultImageEl.classList.remove('no-transition');
+            applyZoom();
+        }
+
+        function formatOriginalName(name) {
+            return (name || '').replace(/^originals\//, '');
+        }
+
+        const thumbnailsContainer = document.getElementById('thumbnailsContainer');
+        const thumbnails = thumbnailsContainer
+            ? Array.from(thumbnailsContainer.querySelectorAll('.thumbnail'))
+            : [];
+        let activeThumbIndex = 0;
+
+        function setActiveThumbnail(index) {
+            if (!thumbnails.length) return;
+            if (activeThumbIndex === index) return;
+
+            const prev = thumbnails[activeThumbIndex];
+            const next = thumbnails[index];
+            if (prev) prev.classList.remove('active');
+            if (next) next.classList.add('active');
+            activeThumbIndex = index;
+        }
+
+        function ensureActiveThumbnailVisible(index) {
+            if (!thumbnailsContainer || !thumbnails.length) return;
+            const thumb = thumbnails[index];
+            if (!thumb) return;
+
+            requestAnimationFrame(() => {
+                const containerRect = thumbnailsContainer.getBoundingClientRect();
+                const thumbRect = thumb.getBoundingClientRect();
+
+                const padding = 8;
+                const isVisible =
+                    thumbRect.left >= (containerRect.left + padding) &&
+                    thumbRect.right <= (containerRect.right - padding);
+
+                if (isVisible) return;
+
+                const containerCenter = containerRect.left + (containerRect.width / 2);
+                const thumbCenter = thumbRect.left + (thumbRect.width / 2);
+                thumbnailsContainer.scrollLeft += (thumbCenter - containerCenter);
+            });
+        }
+
+        function updateImage() {
+            setActiveThumbnail(currentIndex);
+            ensureActiveThumbnailVisible(currentIndex);
+
+            resultImageEl.src = images[currentIndex].url;
+            imageInfoEl.textContent = formatOriginalName(images[currentIndex].originalName);
+            imageCounterEl.textContent = `${currentIndex + 1} / ${totalImages}`;
+
+            zoomLevel = 1;
+            panX = 0;
+            panY = 0;
+            requestAnimationFrame(() => {
+                updateBaseSize();
+                applyZoom();
+            });
+
+            prevBtnEl.disabled = currentIndex === 0;
+            nextBtnEl.disabled = currentIndex === totalImages - 1;
+        }
+
+        function showImage(index) {
+            currentIndex = index;
+            updateImage();
+        }
+
+        function prevImage() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                updateImage();
+            }
+        }
+
+        function nextImage() {
+            if (currentIndex < totalImages - 1) {
+                currentIndex++;
+                updateImage();
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') prevImage();
+            if (e.key === 'ArrowRight') nextImage();
+        });
+
+        zoomInBtn.addEventListener('click', () => setZoom(zoomLevel + zoomStep));
+        zoomOutBtn.addEventListener('click', () => setZoom(zoomLevel - zoomStep));
+        zoomResetBtn.addEventListener('click', () => setZoom(1));
+
+        resultImageEl.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const direction = e.deltaY > 0 ? -1 : 1;
+            zoomAtPointer(e, zoomLevel + (direction * zoomStep), { disableTransition: true });
+        }, { passive: false });
+
+        resultImageEl.addEventListener('pointerdown', (e) => {
+            if (e.button !== 0) return;
+            resultImageEl.setPointerCapture(e.pointerId);
+            startPan(e.clientX, e.clientY);
+        });
+
+        resultImageEl.addEventListener('pointermove', (e) => {
+            movePan(e.clientX, e.clientY);
+        });
+
+        resultImageEl.addEventListener('pointerup', () => {
+            endPan();
+        });
+
+        resultImageEl.addEventListener('pointercancel', () => {
+            endPan();
+        });
+
+        resultImageEl.addEventListener('click', (e) => {
+            if (didDrag) {
+                didDrag = false;
+                return;
+            }
+
+            if (zoomLevel === 1) {
+                // Clique deve manter a animação (comportamento anterior)
+                if (wheelTransitionTimeout) {
+                    clearTimeout(wheelTransitionTimeout);
+                    wheelTransitionTimeout = null;
+                }
+                resultImageEl.classList.remove('no-transition');
+                zoomAtPointer(e, clickZoom);
+            } else {
+                setZoom(1);
+            }
+        });
+
+        updateImage();
+
+        resultImageEl.addEventListener('load', () => {
+            updateBaseSize();
+            applyZoom();
+        });
+
+        window.addEventListener('resize', () => {
+            updateBaseSize();
+            applyZoom();
+        });
+    </script>
 
 </body>
 

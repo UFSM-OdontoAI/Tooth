@@ -3,15 +3,11 @@
 <div class="user-header">
     <div class="user-info">
         {% if request.user.socialaccount_set.all %}
-            <img
-                src="{{ request.user.socialaccount_set.all.0.get_avatar_url }}"
-                alt="Foto do usuário"
-                class="user-avatar"
-            >
+        <img src="{{ request.user.socialaccount_set.all.0.get_avatar_url }}" alt="Foto do usuário" class="user-avatar">
         {% else %}
-            <div class="user-avatar-placeholder">
-                {{ request.user.first_name.0|default:request.user.username.0|upper }}
-            </div>
+        <div class="user-avatar-placeholder">
+            {{ request.user.first_name.0|default:request.user.username.0|upper }}
+        </div>
         {% endif %}
 
         <div class="user-text">
@@ -23,28 +19,17 @@
     </div>
 
     <form method="post" action="{% url 'account_logout' %}" class="logout-form">
-    {% csrf_token %}
-    <button type="submit" class="logout-btn">
-        <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            class="logout-icon"
-        >
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-            <polyline points="16 17 21 12 16 7"/>
-            <line x1="21" y1="12" x2="9" y2="12"/>
-        </svg>
-        <span>Sair</span>
-    </button>
-	</form>
-
+        {% csrf_token %}
+        <button type="submit" class="logout-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="logout-icon">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                <polyline points="16 17 21 12 16 7" />
+                <line x1="21" y1="12" x2="9" y2="12" />
+            </svg>
+            <span>Sair</span>
+        </button>
+    </form>
 
 </div>
-
