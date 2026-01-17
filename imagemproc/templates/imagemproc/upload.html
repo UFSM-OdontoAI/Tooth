@@ -1,136 +1,661 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <title>UFSM — Sistema de Análise de Radiografias</title>
 
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-    
-    <!-- Bootstrap -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Roboto:wght@300;400;500;700&display=swap"
+        rel="stylesheet">
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
 
+    <!-- Common Styles -->
+    <link rel="stylesheet" href="/static/css/common.css">
+
     <style>
-        body {
-            background: #e8f0fa;
-            font-family: 'Roboto', sans-serif;
-            color: #333;
-        }
-
-        .navbar {
-            background: #003366;
-            padding: 15px 30px;
-        }
-        .navbar-brand {
-            font-family: 'Merriweather';
-            color: white !important;
-            font-size: 1.4rem;
-            font-weight: 700;
-        }
-
         .header-logos img {
             max-height: 90px;
             margin: 10px 25px;
         }
 
-        h1, h2, h4 {
-            font-family: 'Merriweather';
+        .file-upload-wrapper {
+            position: relative;
+            margin-bottom: 20px;
         }
 
-        .card {
-            border-radius: 15px;
-            padding: 28px;
-            box-shadow: 0 4px 15px rgba(0, 30, 80, 0.15);
-            background: white;
-        }
-
-        footer {
-            margin-top: 60px;
-            padding: 20px;
-            background: #003366;
-            color: white;
+        .file-upload-label {
+            position: relative;
+            display: block;
+            padding: 40px;
+            border: 2px dashed #0055A2;
+            border-radius: 12px;
+            background: #f8fbff;
+            cursor: pointer;
             text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .file-upload-label:hover {
+            border-color: #003d75;
+            background: #eef5ff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 85, 162, 0.1);
+        }
+
+        .file-upload-label svg {
+            margin-bottom: 12px;
+        }
+
+        .file-upload-text {
+            color: #0055A2;
+            font-weight: 500;
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+
+        .file-upload-hint {
+            color: #666;
+            font-size: 13px;
+        }
+
+        input[type="file"] {
+            position: absolute;
+            width: 0.1px;
+            height: 0.1px;
+            opacity: 0;
+            overflow: hidden;
+            z-index: -1;
+        }
+
+        .file-name-display {
+            margin-top: 12px;
+            padding: 10px 16px;
+            background: transparent;
+            border-radius: 8px;
+            color: #28a745;
+            font-size: 14px;
+            font-weight: 500;
+            display: none;
+            text-align: center;
+        }
+
+        .file-name-display.show {
+            display: block;
+        }
+
+        .file-upload-label.has-file {
+            padding: 20px;
+            border-color: #28a745;
+            background: #f8fef9;
+        }
+
+        .file-upload-label.has-file .upload-icon-wrapper {
+            display: none;
+        }
+
+        .images-preview-container {
+            display: none;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin: 15px auto;
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 5px;
+        }
+
+        .col-12 {
+            max-width: 600px;
+            margin: 0 auto;
+            transition: max-width 0.3s ease;
+        }
+
+        .col-12.expanded {
+            max-width: 1200px;
+        }
+
+        @media (min-width: 1400px) {
+            .col-12.expanded {
+                max-width: 1400px;
+            }
+        }
+
+        .images-preview-container.show {
+            display: flex;
+        }
+
+        .preview-image-wrapper {
+            position: relative;
+            width: 100px;
+            aspect-ratio: 1;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 2px solid #0055A2;
+            flex-shrink: 0;
+        }
+
+        .preview-image-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .preview-image-name {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 4px 6px;
+            font-size: 10px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .remove-image-btn {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            line-height: 1;
+            transition: all 0.2s ease;
+            z-index: 10;
+            opacity: 0.7;
+        }
+
+        .remove-image-btn:hover {
+            background: rgba(0, 0, 0, 0.9);
+            opacity: 1;
+            transform: scale(1.1);
+        }
+
+        .change-file-text {
+            display: none;
+            color: #666;
+            font-weight: 400;
+            font-size: 13px;
+            margin-top: 8px;
+            text-align: center;
+        }
+
+        .change-file-text.show {
+            display: block;
+        }
+
+        .trash-icon-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: transparent;
+            border: none;
+            color: #999;
+            cursor: pointer;
+            padding: 6px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+            display: none;
+            z-index: 100;
+        }
+
+        .trash-icon-btn.show {
+            display: block;
+        }
+
+        .trash-icon-btn:hover {
+            color: #dc3545;
+        }
+
+        .error-message {
+            background: #fee;
+            border: 1px solid #fcc;
+            border-radius: 8px;
+            padding: 12px 16px;
+            color: #c33;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+        }
+
+        .error-list {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .error-list li {
+            margin-bottom: 8px;
+        }
+
+        .file-error {
+            display: none;
+            background: #fee;
+            border: 1px solid #fcc;
+            border-radius: 8px;
+            padding: 12px 16px;
+            color: #c33;
+            margin-top: 12px;
             font-size: 0.9rem;
         }
-        .logout-btn {
-                background: #ffffff;
-                color: #0055A2;
-                border: none;
-                padding: 6px 14px;
-                border-radius: 4px;
-                font-weight: bold;
-                cursor: pointer;
+
+        .file-error.show {
+            display: block;
         }
 
-        .logout-btn:hover {
-                background: #e6e6e6;
+        .card-title {
+            font-size: 1.75rem;
+            font-weight: 400;
+            color: #003366;
+            margin-bottom: 8px;
+            text-align: center;
+            letter-spacing: 0.3px;
         }
-        .user-text strong,
-        .user-text small {
-                color: #ffffff;
+
+        .card-subtitle {
+            text-align: center;
+            color: #666;
+            font-size: 0.95rem;
+            margin-bottom: 30px;
+            font-weight: 300;
         }
-	.user-avatar {
-		width: 40px;
-		height: 40px;
-		border-radius: 50%;
-		object-fit: cover;
-	}	
+
+        .file-upload-label.has-error {
+            border-color: #dc3545 !important;
+            background: #fff5f5 !important;
+        }
+
+        .file-upload-label.has-error .upload-icon-wrapper svg {
+            stroke: #dc3545 !important;
+        }
+
+        .file-upload-label.has-error .file-upload-text {
+            color: #dc3545 !important;
+        }
+
+        .file-upload-label.has-error .file-upload-hint {
+            color: #dc3545 !important;
+        }
     </style>
 </head>
 
 <body>
 
-<nav class="navbar">
-    <span class="navbar-brand">UFSM — Tooth is not an Odontological Object Tagging Hub </span>
-    {% include "partials/user_header.html" %}
-</nav>
+    <nav class="navbar">
+        <a href="{% url 'imagemproc:home' %}" class="navbar-brand">
+            UFSM — Tooth is not an Odontological Object Tagging Hub
+        </a>
+        {% include "partials/user_header.html" %}
+    </nav>
 
-<div class="container py-5">
+    <div class="container py-5">
 
-    <div class="text-center header-logos">
-        <!-- Esses arquivos devem estar em /static/ -->
-        <img src="/static/ufsm_logo.png" alt="UFSM Logo">
-        <img src="/static/ct_logo.png" alt="Centro de Tecnologia">
-        <img src="/static/ccs_logo.png" alt="Centro de Ciências da Saúde">
-    </div>
+        <div class="row justify-content-center">
+            <div class="col-12" id="cardColumn">
 
-    <h1 class="text-center mt-4 mb-4">Sistema de Segmentação automática de imagens</h1>
+                <div class="card" id="uploadCard">
+                    <h2 class="card-title">Envie sua radiografia panorâmica</h2>
+                    <p class="card-subtitle">Selecione uma ou mais imagens para análise</p>
 
-    <p class="text-center mb-5 px-4">
-        Proporcionar aos pacientes atendidos no curso de Odontologia da Universidade Federal de Santa Maria 
-        um diagnóstico mais rápido e preciso, melhorando a qualidade do serviço como um todo.  
-        O software desenvolvido tem também como objetivo ajudar na formação acadêmica dos estudantes 
-        do curso de Engenharia de Computação e de Odontologia, assim como servir como modelo 
-        para implementação em outras instituições.
-    </p>
-
-    <div class="row justify-content-center">
-        <div class="col-lg-6">
-            <div class="card">
-
-                <h4 class="text-center mb-4">Envie sua radiografia panorâmica</h4>
-
-                <form action="{% url 'imagemproc:upload_save' %}" method="POST" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    <div class="mb-3">
-                        {{ form.image.label_tag }}
-                        {{ form.image }}
+                    {% if form.errors %}
+                    <div class="error-message">
+                        <strong>⚠️ Erro no envio:</strong>
+                        <ul class="error-list">
+                            {% for field in form %}
+                            {% for error in field.errors %}
+                            <li>{{ error }}</li>
+                            {% endfor %}
+                            {% endfor %}
+                            {% for error in form.non_field_errors %}
+                            <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
                     </div>
+                    {% endif %}
 
-                    <button class="btn btn-primary w-100 btn-lg" style="background:#0059a6;">
-                        Processar imagem
-                    </button>
-                </form>
+                    <form action="{% url 'imagemproc:upload_save' %}" method="POST" enctype="multipart/form-data"
+                        id="uploadForm">
+                        {% csrf_token %}
+                        <div class="file-upload-wrapper">
+                            <label for="id_images" class="file-upload-label" id="uploadLabel">
+                                <button type="button" class="trash-icon-btn" id="trashIconBtn"
+                                    title="Limpar todas as imagens">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="3 6 5 6 21 6"></polyline>
+                                        <path
+                                            d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
+                                        </path>
+                                        <line x1="10" y1="11" x2="10" y2="17"></line>
+                                        <line x1="14" y1="11" x2="14" y2="17"></line>
+                                    </svg>
+                                </button>
+                                <div class="upload-icon-wrapper">
+                                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#0055A2"
+                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                        <polyline points="17 8 12 3 7 8"></polyline>
+                                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                                    </svg>
+                                    <div class="file-upload-text">Clique para selecionar imagens</div>
+                                    <div class="file-upload-hint">ou arraste e solte aqui • Até {{ max_images_per_batch}} imagens</div>
+                                </div>
+                                <div id="imagesPreviewContainer" class="images-preview-container"></div>
+                                <div class="file-name-display" id="fileNameDisplay"></div>
+                                <div class="change-file-text" id="changeFileText">✔️ Imagens carregadas • Clique para
+                                    alterar</div>
+                            </label>
+                            <input type="file" id="id_images" name="images" multiple accept="image/*">
+                            <div class="file-error" id="fileError"></div>
+                        </div>
 
+                        <button class="btn btn-primary btn-lg btn-primary-custom w-100">
+                            Processar imagens
+                        </button>
+                    </form>
+
+                    <script>
+                        const fileInput = document.getElementById('id_images');
+                        const fileNameDisplay = document.getElementById('fileNameDisplay');
+                        const uploadLabel = document.getElementById('uploadLabel');
+                        const imagesPreviewContainer = document.getElementById('imagesPreviewContainer');
+                        const changeFileText = document.getElementById('changeFileText');
+                        const uploadForm = document.getElementById('uploadForm');
+                        const fileError = document.getElementById('fileError');
+                        const trashIconBtn = document.getElementById('trashIconBtn');
+                        const cardColumn = document.getElementById('cardColumn');
+
+                        const validExtensions = {{ valid_extensions| safe }};
+                        const maxFileSize = {{ max_file_size_mb }} * 1024 * 1024;
+                        const maxImagesPerBatch = {{ max_images_per_batch }};
+                        const expandThreshold = {{ expand_threshold }};
+
+                        let selectedFiles = [];
+
+                        function selectedFilesLabel() {
+                            return `📷 ${selectedFiles.length} ${selectedFiles.length > 1 ? 'imagens selecionadas' : 'imagem selecionada'}`;
+                        }
+
+                        function showError(message) {
+                            fileError.textContent = '⚠️ ' + message;
+                            fileError.classList.add('show');
+                            uploadLabel.classList.add('has-error');
+                        }
+
+                        function failValidation(message) {
+                            showError(message);
+                            fileInput.value = '';
+                            return false;
+                        }
+
+                        function clearError() {
+                            fileError.classList.remove('show');
+                            fileError.textContent = '';
+                            uploadLabel.classList.remove('has-error');
+                            uploadLabel.style.borderColor = '';
+                            uploadLabel.style.background = '';
+                        }
+
+                        function validateFiles(files, currentTotal = 0) {
+                            clearError();
+
+                            if (!files || files.length === 0) {
+                                return failValidation('Nenhuma imagem foi selecionada');
+                            }
+
+                            if (currentTotal + files.length > maxImagesPerBatch) {
+                                return failValidation(`Máximo de ${maxImagesPerBatch} imagens por vez`);
+                            }
+
+                            for (let file of files) {
+                                const fileName = file.name.toLowerCase();
+                                const hasValidExtension = validExtensions.some(ext => fileName.endsWith(ext));
+
+                                if (!hasValidExtension) {
+                                    return failValidation(`"${file.name}" possui formato inválido. Formatos aceitos: ${validExtensions.join(', ')}`);
+                                }
+
+                                if (file.size > maxFileSize) {
+                                    return failValidation(`"${file.name}" é muito grande. Tamanho máximo: ${maxFileSize / (1024 * 1024)}MB`);
+                                }
+
+                                if (!file.type.startsWith('image/')) {
+                                    return failValidation(`"${file.name}" não é uma imagem válida`);
+                                }
+                            }
+
+                            return true;
+                        }
+
+                        uploadForm.addEventListener('submit', function (e) {
+                            e.preventDefault();
+
+                            if (selectedFiles.length === 0) {
+                                showError('Nenhuma imagem foi selecionada');
+                                return false;
+                            }
+
+                            const formData = new FormData();
+                            selectedFiles.forEach(file => {
+                                formData.append('images', file);
+                            });
+
+                            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+                            formData.append('csrfmiddlewaretoken', csrfToken);
+
+                            fetch(uploadForm.action, {
+                                method: 'POST',
+                                body: formData
+                            }).then(response => {
+                                if (response.ok) {
+                                    return response.text();
+                                }
+                                throw new Error('Erro no envio');
+                            }).then(html => {
+                                document.open();
+                                document.write(html);
+                                document.close();
+                            }).catch(error => {
+                                showError('Erro ao enviar imagens. Tente novamente.');
+                            });
+                        });
+
+                        function removeFile(index, event) {
+                            if (event) {
+                                event.stopPropagation(); // Evitar que o clique acione o label
+                                event.preventDefault();
+                            }
+
+                            selectedFiles.splice(index, 1);
+
+                            const wrappers = imagesPreviewContainer.querySelectorAll('.preview-image-wrapper');
+                            if (wrappers[index]) {
+                                wrappers[index].remove();
+                            }
+
+                            updateCountersAndButtons();
+
+                            const remainingWrappers = imagesPreviewContainer.querySelectorAll('.preview-image-wrapper');
+                            remainingWrappers.forEach((wrapper, newIndex) => {
+                                const removeBtn = wrapper.querySelector('.remove-image-btn');
+                                if (removeBtn) {
+                                    removeBtn.onclick = (e) => {
+                                        e.stopPropagation();
+                                        e.preventDefault();
+                                        removeFile(newIndex, e);
+                                    };
+                                }
+                            });
+
+                            fileInput.value = '';
+                        }
+
+                        function updateCountersAndButtons() {
+                            setUploadState(selectedFiles.length > 0);
+                        }
+
+                        function clearAllFiles() {
+                            selectedFiles = [];
+                            updatePreviews();
+                            fileInput.value = '';
+                        }
+
+                        function updatePreviews() {
+                            imagesPreviewContainer.innerHTML = '';
+
+                            if (selectedFiles.length === 0) {
+                                setUploadState(false);
+                                return;
+                            }
+
+                            selectedFiles.forEach((file, index) => {
+                                const reader = new FileReader();
+                                reader.onload = function (e) {
+                                    const wrapper = document.createElement('div');
+                                    wrapper.className = 'preview-image-wrapper';
+
+                                    const img = document.createElement('img');
+                                    img.src = e.target.result;
+
+                                    const removeBtn = document.createElement('button');
+                                    removeBtn.className = 'remove-image-btn';
+                                    removeBtn.innerHTML = '×';
+                                    removeBtn.type = 'button';
+                                    removeBtn.onclick = (e) => {
+                                        e.stopPropagation();
+                                        e.preventDefault();
+                                        removeFile(index, e);
+                                    };
+
+                                    const name = document.createElement('div');
+                                    name.className = 'preview-image-name';
+                                    name.textContent = file.name;
+
+                                    wrapper.appendChild(img);
+                                    wrapper.appendChild(removeBtn);
+                                    wrapper.appendChild(name);
+                                    imagesPreviewContainer.appendChild(wrapper);
+                                };
+                                reader.readAsDataURL(file);
+                            });
+
+                            imagesPreviewContainer.classList.add('show');
+                            changeFileText.textContent = '✔️ Imagens carregadas • Clique para adicionar mais';
+                            setUploadState(true);
+                        }
+
+                        function setUploadState(hasFiles) {
+                            if (!hasFiles) {
+                                imagesPreviewContainer.classList.remove('show');
+                                fileNameDisplay.classList.remove('show');
+                                fileNameDisplay.textContent = '';
+                                changeFileText.classList.remove('show');
+                                uploadLabel.classList.remove('has-file');
+                                trashIconBtn.classList.remove('show');
+                                cardColumn.classList.remove('expanded');
+                                return;
+                            }
+
+                            fileNameDisplay.textContent = selectedFilesLabel();
+                            fileNameDisplay.classList.add('show');
+                            changeFileText.classList.add('show');
+                            uploadLabel.classList.add('has-file');
+                            trashIconBtn.classList.add('show');
+
+                            if (selectedFiles.length > expandThreshold) {
+                                cardColumn.classList.add('expanded');
+                            } else {
+                                cardColumn.classList.remove('expanded');
+                            }
+                        }
+
+                        function handleFilesSelect(files) {
+                            if (!validateFiles(files, selectedFiles.length)) {
+                                fileInput.value = '';
+                                return;
+                            }
+
+                            Array.from(files).forEach(file => {
+                                selectedFiles.push(file);
+                            });
+
+                            updatePreviews();
+                            fileInput.value = '';
+                        }
+
+                        fileInput.addEventListener('change', function (e) {
+                            if (this.files && this.files.length > 0) {
+                                handleFilesSelect(this.files);
+                            }
+                        });
+
+                        trashIconBtn.addEventListener('click', function (e) {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            clearAllFiles();
+                        });
+
+                        function resetUploadStyle() {
+                            const hasFile = uploadLabel.classList.contains('has-file');
+                            uploadLabel.style.borderColor = hasFile ? '#28a745' : '#0055A2';
+                            uploadLabel.style.background = hasFile ? '#f0fdf4' : '#f8fbff';
+                        }
+
+                        uploadLabel.addEventListener('dragover', function (e) {
+                            e.preventDefault();
+                            if (!this.classList.contains('has-file')) {
+                                this.style.borderColor = '#003d75';
+                                this.style.background = '#eef5ff';
+                            }
+                        });
+
+                        uploadLabel.addEventListener('dragleave', function (e) {
+                            e.preventDefault();
+                            if (!this.classList.contains('has-file')) {
+                                resetUploadStyle();
+                            }
+                        });
+
+                        uploadLabel.addEventListener('drop', function (e) {
+                            e.preventDefault();
+                            resetUploadStyle();
+
+                            if (e.dataTransfer.files.length) {
+                                handleFilesSelect(e.dataTransfer.files);
+                            }
+                        });
+                    </script>
+
+                </div>
             </div>
         </div>
+
     </div>
 
-</div>
-
-<footer>
-    Universidade Federal de Santa Maria — Centro de Tecnologia • Centro de Ciências da Saúde
-</footer>
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logos">
+                <img src="/static/UFSM_principal_cor.png" alt="UFSM" onerror="this.src='/static/ufsm_logo.png'">
+                <img src="/static/ct_logo.png" alt="Centro de Tecnologia" class="logo-middle">
+                <img src="/static/ccs_logo.png" alt="Centro de Ciências da Saúde">
+            </div>
+            <div class="footer-text">
+                Universidade Federal de Santa Maria — Centro de Tecnologia • Centro de Ciências da Saúde
+            </div>
+        </div>
+    </footer>
 
 </body>
+
 </html>
