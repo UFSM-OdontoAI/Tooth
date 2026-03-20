@@ -9,6 +9,10 @@ from torchvision.transforms import functional as F
 from .model.unet.utils import load_seunet
 from .constants import TOOTH_COLORMAP
 
+MODEL_PATH = os.path.join(settings.BASE_DIR, "imagemproc", "SEUnet32.pth")
+model = load_seunet(MODEL_PATH, 33, cuda=cuda)
+
+predictor = SegmentationPredictor(model, cuda=cuda)
 
 class SegmentationPredictor:
     def __init__(self, model, mean=0.458, std=0.173, cuda=True) -> None:
@@ -62,10 +66,6 @@ def main(file_bytes):
         raise ValueError("file_bytes vazio")
 
     cuda = False
-    MODEL_PATH = os.path.join(settings.BASE_DIR, "imagemproc", "SEUnet32.pth")
-    model = load_seunet(MODEL_PATH, 33, cuda=cuda)
-
-    predictor = SegmentationPredictor(model, cuda=cuda)
 
     image = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
     if image is None:
