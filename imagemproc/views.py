@@ -10,6 +10,15 @@ from .forms import ImageUploadForm
 from .models import Upload, UploadBatch
 from .predict_unet import main
 from .constants import VALID_IMAGE_EXTENSIONS, MAX_FILE_SIZE_MB, MAX_IMAGES_PER_BATCH, UPLOAD_CARD_EXPAND_THRESHOLD
+from django.core.cache import cache
+
+
+def media_memory(request, path):
+    data = cache.get(path)
+    if data is None:
+        return HttpResponse(status=404)
+
+    return HttpResponse(data, content_type="image/png")
 
 
 @login_required

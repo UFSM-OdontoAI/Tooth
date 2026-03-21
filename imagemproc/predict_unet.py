@@ -9,11 +9,6 @@ from torchvision.transforms import functional as F
 from .model.unet.utils import load_seunet
 from .constants import TOOTH_COLORMAP
 
-MODEL_PATH = os.path.join(settings.BASE_DIR, "imagemproc", "SEUnet32.pth")
-model = load_seunet(MODEL_PATH, 33, cuda=cuda)
-
-predictor = SegmentationPredictor(model, cuda=cuda)
-
 class SegmentationPredictor:
     def __init__(self, model, mean=0.458, std=0.173, cuda=True) -> None:
         self.model = model
@@ -37,6 +32,12 @@ class SegmentationPredictor:
         predictions = F.resize(predictions, origin_shape,
                                F.InterpolationMode.NEAREST)
         return predictions.squeeze(0)
+
+cuda = False
+MODEL_PATH = os.path.join(settings.BASE_DIR, "imagemproc", "SEUnet32.pth")
+model = load_seunet(MODEL_PATH, 33, cuda=cuda)
+
+predictor = SegmentationPredictor(model, cuda=cuda)
 
 
 def label_mask_to_bbox(mask: np.ndarray):

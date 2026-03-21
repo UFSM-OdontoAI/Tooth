@@ -129,3 +129,10 @@ SOCIALACCOUNT_PROVIDERS = {
         },
     }
 }
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "tooth-cache",
+    }
+}
