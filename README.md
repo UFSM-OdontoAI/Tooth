@@ -1,11 +1,11 @@
 # Tooth
 Tooth is not an Odontological Object Tagging Hub.
 
-##Legal and Compliance Considerations
+## Legal and Compliance Considerations
 
 This project is designed with a strong emphasis on data minimization and privacy, avoiding persistent storage of sensitive information whenever possible, in alignment with the principles of the Brazilian General Data Protection Law (LGPD). Image processing is performed in a transient manner, reducing risks associated with unintended data retention. Additionally, the system does not implement user-generated content moderation or platform-like behavior, keeping it outside the scope of regulations such as the so-called “Felca Law” (ECA Digital).
 
-##To Install
+## To Install
 
 git clone https://github.com/UFSM-OdontoAI/Tooth.git
 
@@ -29,7 +29,7 @@ python manage.py collectstatic
 
 python -m gunicorn myproject.wsgi:application --bind 0.0.0.0:9000
 
-###Google OAuth Configuration
+### Google OAuth Configuration
 
 To enable Google authentication:
 
