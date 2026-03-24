@@ -33,34 +33,24 @@ python -m gunicorn myproject.wsgi:application --bind 0.0.0.0:9000
 
 To enable Google authentication:
 
-Go to the Google Cloud Console
-https://console.cloud.google.com/
-Create a project (or select an existing one)
-Navigate to:
-APIs & Services → Credentials
-Click:
-Create Credentials → OAuth Client ID
-Application type:
-Web application
-Under Authorized redirect URIs, add exactly:
-http://yourhost:9000/accounts/google/login/callback/
-
+* Go to the Google Cloud Console https://console.cloud.google.com/
+* Create a project (or select an existing one)
+* Navigate to: APIs & Services → Credentials
+* Click: Create Credentials → OAuth Client ID
+* Application type: Web application
+* Under Authorized redirect URIs, add exactly: http://yourhost:9000/accounts/google/login/callback/
 The URL must match exactly, including the trailing /
-
-Save and copy:
-client_id
-client_secret
-In Django Admin (http://yourhost:9000/admin):
-Go to Social Applications
-Create a new entry:
-Provider: Google
-Client ID: (client_id created on google cloud console)
-Secret: (secret created on google cloud console)
-Sites: select your active site
-In settings.py, ensure:
-SITE_ID = 1
+* Save and copy:
+  * client_id
+  * client_secret
+* In Django Admin (http://yourhost:9000/admin):
+* Go to Social Applications
+* Create a new entry:
+  * Provider: Google
+  * Client ID: (client_id created on google cloud console)
+  * Secret: (secret created on google cloud console)
+  * Sites: select your active site
+* In settings.py, ensure:
+  SITE_ID = 1
 (Recommended for development)
-
-Add your account under:
-
-OAuth Consent Screen → Test Users
+*Optionally, add your account under: OAuth Consent Screen → Test Users
